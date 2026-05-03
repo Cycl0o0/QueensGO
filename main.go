@@ -48,8 +48,6 @@ func NewApp() *App {
 }
 
 func (a *App) Update() error {
-	a.screenW, a.screenH = ebiten.WindowSize()
-
 	switch a.state {
 	case StateMenu:
 		sel := a.menu.Update(a.screenW, a.screenH)
@@ -89,6 +87,8 @@ func (a *App) Draw(screen *ebiten.Image) {
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (int, int) {
+	a.screenW = outsideWidth
+	a.screenH = outsideHeight
 	return outsideWidth, outsideHeight
 }
 
