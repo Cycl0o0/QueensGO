@@ -53,7 +53,17 @@ func (g *GameUI) Update(screenW, screenH int) {
 	g.WantMenu = false
 	g.WantNew = false
 
-	if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+	var mx, my int
+	var inputActive bool
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		mx, my = ebiten.CursorPosition()
+		inputActive = true
+	} else if touches := ebiten.AppendTouchIDs(nil); len(touches) > 0 {
+		mx, my = ebiten.TouchPosition(touches[0])
+		inputActive = true
+	}
+
+	if !inputActive {
 		g.justClicked = false
 		return
 	}
@@ -61,8 +71,6 @@ func (g *GameUI) Update(screenW, screenH int) {
 		return
 	}
 	g.justClicked = true
-
-	mx, my := ebiten.CursorPosition()
 
 	// Bottom buttons — three buttons centered
 	totalBtnsW := 3*btnWidth + 2*btnGap

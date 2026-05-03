@@ -34,10 +34,18 @@ func NewMenu() *Menu {
 func (m *Menu) Update(screenW, screenH int) int {
 	m.Selected = -1
 
+	var mx, my int
+	var inputActive bool
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		mx, my := ebiten.CursorPosition()
-		const bW, bH, startY, gap = 240, 50, 210, 15
+		mx, my = ebiten.CursorPosition()
+		inputActive = true
+	} else if touches := ebiten.AppendTouchIDs(nil); len(touches) > 0 {
+		mx, my = ebiten.TouchPosition(touches[0])
+		inputActive = true
+	}
 
+	if inputActive {
+		const bW, bH, startY, gap = 240, 50, 210, 15
 		for i := range Difficulties {
 			bx := (screenW - bW) / 2
 			by := startY + i*(bH+gap)
