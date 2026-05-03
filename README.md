@@ -40,10 +40,6 @@ go run .
 - Go 1.21+
 - On Linux: `sudo apt install libgl1-mesa-dev xorg-dev` (for Ebitengine)
 
-## Screenshot
-
-*Coming soon*
-
 ## Licence
 
 This project is licensed under the [GNU Affero General Public License v3.0](LICENCE).
