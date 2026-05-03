@@ -24,7 +24,7 @@ var Difficulties = []Difficulty{
 
 // Menu renders the difficulty selection screen.
 type Menu struct {
-	Selected int // -1 if nothing selected yet
+	Selected int
 }
 
 func NewMenu() *Menu {
@@ -36,16 +36,12 @@ func (m *Menu) Update(screenW, screenH int) int {
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
-		btnW := 240
-		btnH := 50
-		startY := 200
-		gap := 15
+		const bW, bH, startY, gap = 240, 50, 210, 15
 
 		for i := range Difficulties {
-			bx := (screenW - btnW) / 2
-			by := startY + i*(btnH+gap)
-			rect := image.Rect(bx, by, bx+btnW, by+btnH)
-			if image.Pt(mx, my).In(rect) {
+			bx := (screenW - bW) / 2
+			by := startY + i*(bH+gap)
+			if image.Pt(mx, my).In(image.Rect(bx, by, bx+bW, by+bH)) {
 				m.Selected = i
 				return m.Selected
 			}
@@ -57,52 +53,76 @@ func (m *Menu) Update(screenW, screenH int) int {
 func (m *Menu) Draw(screen *ebiten.Image, face text.Face) {
 	screenW := screen.Bounds().Dx()
 
-	// Title
+	// Large title
 	title := "Queens"
-	tw, th := text.Measure(title, face, 0)
-	_ = th
-	opts := &text.DrawOptions{}
-	opts.GeoM.Translate(float64(screenW)/2-tw/2, 80)
-	opts.ColorScale.ScaleWithColor(color.RGBA{0x33, 0x33, 0x33, 0xFF})
-	text.Draw(screen, title, face, opts)
+	tw, _ := text.Measure(title, face, 0)
+	{
+		const scale = 1.9
+		opts := &text.DrawOptions{}
+		opts.GeoM.Scale(scale, scale)
+		opts.GeoM.Translate(float64(screenW)/2-tw*scale/2, 42)
+		opts.ColorScale.ScaleWithColor(color.RGBA{0x33, 0x33, 0x33, 0xFF})
+		text.Draw(screen, title, face, opts)
+	}
 
+	// Tagline
+	tagline := "One queen per row, column & color. No adjacency."
+	tlw, _ := text.Measure(tagline, face, 0)
+	{
+		const scale = 0.78
+		opts := &text.DrawOptions{}
+		opts.GeoM.Scale(scale, scale)
+		opts.GeoM.Translate(float64(screenW)/2-tlw*scale/2, 122)
+		opts.ColorScale.ScaleWithColor(color.RGBA{0x77, 0x77, 0x77, 0xFF})
+		text.Draw(screen, tagline, face, opts)
+	}
+
+	// Subtitle
 	subtitle := "Select Difficulty"
 	sw, _ := text.Measure(subtitle, face, 0)
-	opts2 := &text.DrawOptions{}
-	opts2.GeoM.Translate(float64(screenW)/2-sw/2, 140)
-	opts2.ColorScale.ScaleWithColor(color.RGBA{0x66, 0x66, 0x66, 0xFF})
-	text.Draw(screen, subtitle, face, opts2)
+	{
+		opts := &text.DrawOptions{}
+		opts.GeoM.Translate(float64(screenW)/2-sw/2, 165)
+		opts.ColorScale.ScaleWithColor(color.RGBA{0x55, 0x55, 0x55, 0xFF})
+		text.Draw(screen, subtitle, face, opts)
+	}
 
-	// Buttons
-	btnW := float32(240)
-	btnH := float32(50)
-	startY := float32(200)
-	gap := float32(15)
-
+	// Difficulty buttons
+	const bW, bH, startY, gap = float32(240), float32(50), float32(210), float32(15)
 	mx, my := ebiten.CursorPosition()
 
 	for i, diff := range Difficulties {
-		bx := (float32(screenW) - btnW) / 2
-		by := startY + float32(i)*(btnH+gap)
+		bx := (float32(screenW) - bW) / 2
+		by := startY + float32(i)*(bH+gap)
 
-		// Check hover
-		hovered := float32(mx) >= bx && float32(mx) <= bx+btnW &&
-			float32(my) >= by && float32(my) <= by+btnH
+		hovered := float32(mx) >= bx && float32(mx) <= bx+bW &&
+			float32(my) >= by && float32(my) <= by+bH
 
 		bgColor := RegionColors[i]
 		if hovered {
 			bgColor = RegionColorsDark[i]
 		}
 
-		vector.DrawFilledRect(screen, bx, by, btnW, btnH, bgColor, true)
-		vector.StrokeRect(screen, bx, by, btnW, btnH, 2, color.RGBA{0x44, 0x44, 0x44, 0xFF}, true)
+		vector.DrawFilledRect(screen, bx, by, bW, bH, bgColor, true)
+		vector.StrokeRect(screen, bx, by, bW, bH, 2, color.RGBA{0x44, 0x44, 0x44, 0xFF}, true)
 
-		// Button label
 		label := diff.Name
 		lw, lh := text.Measure(label, face, 0)
 		opts := &text.DrawOptions{}
-		opts.GeoM.Translate(float64(bx)+float64(btnW)/2-lw/2, float64(by)+float64(btnH)/2-lh/2)
+		opts.GeoM.Translate(float64(bx)+float64(bW)/2-lw/2, float64(by)+float64(bH)/2-lh/2)
 		opts.ColorScale.ScaleWithColor(color.RGBA{0x22, 0x22, 0x22, 0xFF})
 		text.Draw(screen, label, face, opts)
+	}
+
+	// Click tip at bottom
+	tip := "Click: mark X  |  Click again: place Queen  |  Click again: clear"
+	tipW, _ := text.Measure(tip, face, 0)
+	{
+		const scale = 0.70
+		opts := &text.DrawOptions{}
+		opts.GeoM.Scale(scale, scale)
+		opts.GeoM.Translate(float64(screenW)/2-tipW*scale/2, 590)
+		opts.ColorScale.ScaleWithColor(color.RGBA{0x99, 0x99, 0x99, 0xFF})
+		text.Draw(screen, tip, face, opts)
 	}
 }
